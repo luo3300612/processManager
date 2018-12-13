@@ -14,7 +14,8 @@ class Affair(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(20), nullable=False, unique=True)  # 项目名
 
-    workload = Column(Integer, nullable=False)  # 工作量
+    workload = Column(Integer, nullable=False)  # 总工作量
+    start_from = Column(Integer, default=0)  # 注册时工作量
     process_status = Column(Integer, default=0)  # 当前进度
 
     start_day = Column(Date, default=date.today())  # 开始日期
@@ -41,11 +42,11 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-def register(name, workload, description):  # TODO 类型检查
+def register(name, workload, description, start_from=0):  # TODO 类型检查
     """
     开始一个事务
     """
-    affair = Affair(name=name, workload=workload, description=description)
+    affair = Affair(name=name, start_from=start_from, workload=workload, description=description)
     session.add(affair)
     try:
         session.commit()
@@ -64,6 +65,9 @@ def wrap_up(name):
 
 
 def record(name, workload, thoughts=""):
+    """
+    工作记录
+    """
     rec = Record(workload=workload, thoughts=thoughts)
     affair = session.query(Affair).filter(Affair.name == name).first()
     if not affair:
@@ -83,6 +87,8 @@ def query(name):
 
 def query_all():
     affairs = session.query(Affair).all()
+    if not affairs:
+        return "Not Found!"
     return affairs
 
 
