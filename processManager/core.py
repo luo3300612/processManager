@@ -113,8 +113,8 @@ def display(affairs):
             print(e)
 
 
-display(query("C"))
-display(query_all())
+# display(query("C"))
+# display(query_all())
 
 # register("A", "asd", "hahah")
 # register("A", "abc", "hehe")
