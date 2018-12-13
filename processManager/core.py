@@ -89,6 +89,9 @@ def query(name):
 
 
 def query_all():
+    """
+    查询所有记录
+    """
     affairs = session.query(Affair).all()
     if not affairs:
         return "Not Found!"
