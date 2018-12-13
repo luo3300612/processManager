@@ -99,6 +99,9 @@ def query_all():
 
 
 def display(affairs):
+    """
+    展示查询结果
+    """
     for affair in affairs:
         try:
             div = affair.process_status / affair.workload
