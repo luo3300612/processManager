@@ -79,6 +79,9 @@ def record(name, workload, thoughts=""):
 
 
 def query(name):
+    """
+    根据姓名查询
+    """
     affair = session.query(Affair).filter(Affair.name == name).first()
     if not affair:
         return "Not Found!"
