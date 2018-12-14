@@ -59,29 +59,33 @@ def register(name, workload, description, start_from=0):  # TODO 类型检查
         session.rollback()
 
 
-def wrap_up(name):
+def wrap_up(obj):
     """
     结束一个事务
     """
-    affair = session.query(Affair).filter(Affair.name == name).first()
+    affair = query_affair(obj)
+    if not affair:
+        print("Affair Not Found")
+        return
     affair.end_day = date.today()
     affair.is_completed = True
     session.commit()
     print(f"{affair.name} is completed")
 
 
-def record(name, workload, thoughts=""):
+def record(obj, workload, date=date.today(), thoughts=""):  # TODO 检查是否完成，完成自动warp
     """
     工作记录
     """
-    affair = session.query(Affair).filter(Affair.name == name).first()  # TODO
+    affair = query_affair(obj)
     if not affair:
+        print("Affair Not Found")
         return
     rec = session.query(Record).filter(Record.affair_id == affair.id).filter(Record.date == date.today()).first()
     if rec:
         rec.workload += workload
     else:
-        rec = Record(workload=workload, thoughts=thoughts)
+        rec = Record(workload=workload, thoughts=thoughts, date=date)
         rec.affair = affair
 
     affair.process_status += workload
@@ -101,7 +105,7 @@ def _(name):
     affair = session.query(Affair).filter(Affair.name == name).first()
     if not affair:
         return False
-    return [affair]
+    return affair
 
 
 @query_affair.register(int)
@@ -112,7 +116,7 @@ def _(id):
     affair = session.query(Affair).filter(Affair.id == id).first()
     if not affair:
         return False
-    return [affair]
+    return affair
 
 
 def query_record(affair):
@@ -156,7 +160,7 @@ def show_all():
 def show(obj):
     result = query_affair(obj)
     if result:
-        display(result)
+        display([result])
     else:
         print("Not Found")
 
@@ -169,7 +173,7 @@ def pred(affair):  # TODO refactor
     num_of_work_day = len(records)
     total_workload = reduce(add, (rec.workload for rec in records))
 
-    period = (affair.start_day - date.today()).days
+    period = (date.today() - affair.start_day).days + 1
     if period == 0:
         period = 1
 
@@ -186,8 +190,8 @@ def pred(affair):  # TODO refactor
     return expect_end_day_work_salty_fish, expect_end_day_work_everyday
 
 
-def monitor(id):
-    affair = session.query(Affair).filter(Affair.id == id).first()  # TODO
+def monitor(obj):
+    affair = query_affair(obj)
     if not affair:
         print("Not Found")
         return
@@ -196,6 +200,7 @@ def monitor(id):
     print(fish.strftime("%Y-%m-%d"), "If you work like a salty fish")
     print(dog.strftime("%Y-%m-%d"), "If you work like a dog")
 
+# TODO refactor 写单元测试！！！！
 
 # display(query("C"))
 # display(query_all())
@@ -215,7 +220,11 @@ def monitor(id):
 # register(name="学习OpenCV", workload=492, description="book", start_from=0)
 # record(name="计算机视觉——算法与应用", workload=236 - 205)
 # record(name="学习OpenCV", workload=25)
+# record(name="计算机视觉——算法与应用", workload=261-236)
+# record(name="学习OpenCV", workload=28-25)
 
 #
 #
 #
+if __name__ == '__main__':
+    monitor(1)
