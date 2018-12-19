@@ -59,14 +59,10 @@ def register(name, workload, description, start_from=0):  # TODO 类型检查
         session.rollback()
 
 
-def wrap_up(obj):
+def wrap_up(affair):
     """
     结束一个事务
     """
-    affair = query_affair(obj)
-    if not affair:
-        print("Affair Not Found")
-        return
     affair.end_day = date.today()
     affair.is_completed = True
     session.commit()
@@ -89,6 +85,9 @@ def record(obj, workload, date=date.today(), thoughts=""):  # TODO 检查是否�
         rec.affair = affair
 
     affair.process_status += workload
+    if affair.process_status >= affair.workload:
+        affair.process_status = affair.workload
+        wrap_up(affair)
     session.commit()
 
 
@@ -200,6 +199,7 @@ def monitor(obj):
     print(fish.strftime("%Y-%m-%d"), "If you work like a salty fish")
     print(dog.strftime("%Y-%m-%d"), "If you work like a dog")
 
+
 # TODO refactor 写单元测试！！！！
 
 # display(query("C"))
@@ -228,3 +228,5 @@ def monitor(obj):
 #
 if __name__ == '__main__':
     monitor(1)
+
+# TODO 检查record 页码问题
