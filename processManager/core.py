@@ -230,3 +230,5 @@ if __name__ == '__main__':
     monitor(1)
 
 # TODO 周统计
+# TODO 更好的预测完成时间的方法
+# TODO 预备加入的任务
